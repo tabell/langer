@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Langer MVP</title>
+  <style>
+  body { font-family: sans-serif; margin: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Langer MVP</h1>
+  <div id="content">Loading...</div>
+  <div id="translation"></div>
+<script>
+fetch('/content').then(r => r.json()).then(data => {
+  document.getElementById('content').textContent = data.data || 'No content';
+});
+
+function adjustSelection() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount || sel.isCollapsed) return;
+  const range = sel.getRangeAt(0);
+  if (range.startContainer !== range.endContainer || range.startContainer.nodeType !== Node.TEXT_NODE) {
+    return;
+  }
+  const text = range.startContainer.textContent;
+  let start = range.startOffset;
+  let end = range.endOffset;
+  while (start > 0 && !/\s/.test(text[start - 1])) start--;
+  while (end < text.length && !/\s/.test(text[end])) end++;
+  range.setStart(range.startContainer, start);
+  range.setEnd(range.endContainer, end);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+document.addEventListener('selectionchange', () => {
+  adjustSelection();
+  const sel = window.getSelection();
+  const out = document.getElementById('translation');
+  out.textContent = sel.rangeCount && !sel.isCollapsed ? 'Selected: ' + sel.toString() : '';
+});
+
+document.getElementById('content').addEventListener('click', (e) => {
+  const cr = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY)
+                                          : document.caretPositionFromPoint(e.clientX, e.clientY);
+  if (!cr) return;
+  let node = cr.startContainer;
+  if (node.nodeType !== Node.TEXT_NODE) return;
+  const text = node.textContent;
+  let start = cr.startOffset;
+  if (/\s/.test(text[start])) return;
+  let end = start;
+  while (start > 0 && !/\s/.test(text[start - 1])) start--;
+  while (end < text.length && !/\s/.test(text[end])) end++;
+  const r = document.createRange();
+  r.setStart(node, start);
+  r.setEnd(node, end);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(r);
+});
+</script>
+</body>
+</html>
