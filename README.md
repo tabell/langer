@@ -23,4 +23,5 @@ go build -o langer-server
 ./langer-server
 ```
 
-The server listens on port `8080` by default.
+The server listens on port `8080` by default and serves files from the `static/` directory.
+Open `http://localhost:8080/` after running the server to see the first available content.
