@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type PingResponse struct {
@@ -38,11 +39,13 @@ func importHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type ContentResponse struct {
-	Data string `json:"data"`
+	Tokens []string `json:"tokens"`
 }
 
 func contentHandler(w http.ResponseWriter, r *http.Request) {
-	res := ContentResponse{Data: "not implemented"}
+	sample := "This is a sample article used for demonstration purposes."
+	tokens := strings.Fields(sample)
+	res := ContentResponse{Tokens: tokens}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }
